@@ -96,7 +96,18 @@ check_one() {
   if [[ ! "$bucket" =~ ^[a-z0-9.-]{3,63}$ ]]; then
     return
   fi
-  local url="https://${bucket}.s3.amazonaws.com"
+
+  # Bucket names containing dots break SSL cert validation on the
+  # virtual-hosted style URL (bucket.name.s3.amazonaws.com), because
+  # AWS's wildcard cert only covers *.s3.amazonaws.com (one subdomain
+  # level). Use path-style instead for those to avoid false negatives.
+  local url
+  if [[ "$bucket" == *.* ]]; then
+    url="https://s3.amazonaws.com/${bucket}"
+  else
+    url="https://${bucket}.s3.amazonaws.com"
+  fi
+
   local code
   code=$(curl -s -o /dev/null -m 5 -w "%{http_code}" "$url" 2>/dev/null)
 
@@ -105,7 +116,9 @@ check_one() {
       echo -e "${C_GREEN}[FOUND - PUBLIC]  ${bucket}  (200)${C_RESET}" ;;
     403)
       echo -e "${C_YELLOW}[FOUND - PRIVATE] ${bucket}  (403)${C_RESET}" ;;
-    404|000) : ;;  # doesn't exist / no response — stay quiet
+    404) : ;;  # doesn't exist — stay quiet
+    000)
+      echo -e "${C_RED}[ERROR] ${bucket}  (no response / network or SSL issue)${C_RESET}" ;;
     *)
       echo -e "${bucket}  (${code})" ;;
   esac
