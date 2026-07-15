@@ -71,17 +71,19 @@ fi
 
 # ---------- Generate candidate bucket names ----------
 CANDIDATES_FILE=$(mktemp)
+
+# Always test the bare keyword itself first — this is what lazys3 does,
+# and it's easy to miss if a custom wordlist has no blank line in it.
+echo "$KEYWORD" >> "$CANDIDATES_FILE"
+
 for w in "${WORDS[@]}"; do
-  if [[ -z "$w" ]]; then
-    echo "$KEYWORD" >> "$CANDIDATES_FILE"
-  else
-    echo "${KEYWORD}-${w}"  >> "$CANDIDATES_FILE"
-    echo "${KEYWORD}.${w}"  >> "$CANDIDATES_FILE"
-    echo "${KEYWORD}${w}"   >> "$CANDIDATES_FILE"
-    echo "${w}-${KEYWORD}"  >> "$CANDIDATES_FILE"
-    echo "${w}.${KEYWORD}"  >> "$CANDIDATES_FILE"
-    echo "${w}${KEYWORD}"   >> "$CANDIDATES_FILE"
-  fi
+  [[ -z "$w" ]] && continue
+  echo "${KEYWORD}-${w}"  >> "$CANDIDATES_FILE"
+  echo "${KEYWORD}.${w}"  >> "$CANDIDATES_FILE"
+  echo "${KEYWORD}${w}"   >> "$CANDIDATES_FILE"
+  echo "${w}-${KEYWORD}"  >> "$CANDIDATES_FILE"
+  echo "${w}.${KEYWORD}"  >> "$CANDIDATES_FILE"
+  echo "${w}${KEYWORD}"   >> "$CANDIDATES_FILE"
 done
 sort -u -o "$CANDIDATES_FILE" "$CANDIDATES_FILE"
 
