@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-Bash tools for working with S3 buckets — search your own buckets, check any bucket's status, and enumerate bucket names for recon.
+Bash tools for working with S3 buckets — enumerate bucket names for recon.
 </p>
 
 ---
@@ -25,29 +25,12 @@ Only run `s3-hunter.sh` against domains/keywords **you own or are explicitly aut
 
 | Tool | What it does | Needs AWS account? |
 |---|---|---|
-| `s3-finder.sh` | Search **your own** buckets/objects by pattern — interactive menu, presets, domain-search mode | ✅ Yes |
-| `s3-status.sh` | Check if a bucket name is reachable — prints HTTP status (200/403/404) | ❌ No |
 | `s3-hunter.sh` | lazys3-style enumeration — generates bucket-name permutations for a keyword and checks each in parallel | ❌ No |
 | `common-bucket-words.txt` | 170-word list of common bucket-naming patterns for `s3-hunter.sh -w` | — |
 
 ---
 
 ### Usage
-
-**s3-finder.sh** — search your own AWS account
-```bash
-./s3-finder.sh                       # interactive menu
-./s3-finder.sh invoice                # search all buckets for "invoice"
-./s3-finder.sh -d example.com         # domain mode
-./s3-finder.sh --preset invoices
-```
-
-**s3-status.sh** — quick reachability check, no AWS account needed
-```bash
-./s3-status.sh my-bucket
-./s3-status.sh bucket1 bucket2 bucket3
-./s3-status.sh -f buckets.txt
-```
 
 **s3-hunter.sh** — bucket name recon
 ```bash
@@ -69,7 +52,6 @@ Done.
 
 ### Requirements
 - bash + `curl`
-- AWS CLI v2 + `jq` — only needed for `s3-finder.sh`
 
 ### Install
 ```bash
